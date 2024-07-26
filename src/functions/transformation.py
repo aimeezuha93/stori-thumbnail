@@ -1,11 +1,7 @@
-import os
 import sys
 import traceback
 import json
-import json
-import pandas as pd
 import urllib.parse
-import numpy as np
 import matplotlib.pyplot as plt
 from src.services.logging import get_logger
 from src.services.aws import S3

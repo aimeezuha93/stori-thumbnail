@@ -1,16 +1,11 @@
-import os
 import numpy as np
 from io import BytesIO
 from matplotlib import image
 from boto3 import client as boto_client
-from src.services.logging import get_logger
-
-logger = get_logger()
 
 
 class S3:
     def __init__(self):
-        self.env = os.getenv("env")
         self.s3client = boto_client("s3")
 
     def _get_image(self,  bucket, key):
