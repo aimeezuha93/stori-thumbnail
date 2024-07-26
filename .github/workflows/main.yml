@@ -1,6 +1,7 @@
 name: stori-infrastructure
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 
 env:
   REGION: us-east-1
