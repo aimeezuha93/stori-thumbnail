@@ -88,3 +88,32 @@ jobs:
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --force-upload
+
+  stori-lambda-prod:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - run: npm ci
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+      - name: Stori Authentication
+        run: serverless config credentials --provider aws --key ${{secrets.AWS_STORI_DEPLOY_ACCESS_KEY_ID}} --secret ${{secrets.AWS_STORI_DEPLOY_SECRET_ACCESS_KEY}} -o
+      - name: Stori Deploy
+        run: |
+          serverless plugin install --name serverless-python-requirements
+          serverless plugin install --name serverless-latest-layer-version
+          serverless plugin install --name serverless-disable-functions
+          serverless deploy --stage prod --region us-east-1 --param="stack=Stori" --force --verbose --o
