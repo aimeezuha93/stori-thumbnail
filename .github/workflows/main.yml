@@ -1,0 +1,49 @@
+name: stori-infrastructure
+
+on: [workflow_dispatch]
+
+env:
+  REGION: us-east-1
+  CAPABILITIES: CAPABILITY_NAMED_IAM
+  BUCKET_CFG: stori-artefacts
+
+jobs:
+  stori-s3-prod:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    env:
+      STAGE: prod
+      SAM_TEMPLATE: cloudformation/s3/stori.yml
+      AWS_ACCOUNT: ${{ secrets.AWS_STORI_ACCOUNT }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+      - name: "Set environment variables"
+        run: |
+          echo "PREFIX=sam-templates/$GITHUB_WORKFLOW" >> $GITHUB_ENV
+      - name: Configure STORI AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_STORI_DEPLOY_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STORI_DEPLOY_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+      - name: STORI SAM Setup
+        uses: aws-actions/setup-sam@v2
+      - name: STORI SAM Build
+        run: |
+          sam build -t $SAM_TEMPLATE --use-container
+      - name: STORI SAM Deploy
+        run: |
+          sam deploy -t $SAM_TEMPLATE \
+            --stack-name $GITHUB_WORKFLOW-s3-$STAGE \
+            --capabilities $CAPABILITIES \
+            --region $REGION \
+            --parameter-overrides "Stage=$STAGE" \
+            --s3-bucket $BUCKET_CFG \
+            --s3-prefix $PREFIX \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --force-upload
