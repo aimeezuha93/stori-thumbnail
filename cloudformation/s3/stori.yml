@@ -29,26 +29,30 @@ Parameters:
     Description: "Company name"
 
 Resources:
-  AbacumBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub "${Stack}-abacum"
-      AccessControl: Private
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: BucketOwnerEnforced
-      PublicAccessBlockConfiguration: 
-        BlockPublicAcls: True
-        BlockPublicPolicy: True
-        IgnorePublicAcls: True
-        RestrictPublicBuckets: True
-      Tags: 
-        - Key: "Version"
-          Value: !Ref Version
-        - Key: "Stage"
-          Value: !Ref Stage
-        - Key: "Project"
-          Value: !Ref ProjectName
+  StoriArtifactsProdBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: !Sub "${Stack}-artifacts-${Stage}"
+        AccessControl: Private
+        OwnershipControls:
+          Rules:
+            - ObjectOwnership: BucketOwnerEnforced
+        PublicAccessBlockConfiguration: 
+          BlockPublicAcls: True
+          BlockPublicPolicy: True
+          IgnorePublicAcls: True
+          RestrictPublicBuckets: True
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: 'AES256'
+        Tags: 
+          - Key: "Version"
+            Value: !Ref Version
+          - Key: "Stage"
+            Value: !Ref Stage
+          - Key: "Project"
+            Value: !Ref ProjectName
 
   StoriDataInProdBucket:
     Type: AWS::S3::Bucket
