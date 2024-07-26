@@ -16,7 +16,7 @@ provider:
     env: ${opt:stage, 'prod'}
     stack: ${param:stack, 'stori'}
   deploymentBucket:
-    name: ${param:stack, 'stori'}-data-services-${opt:stage, 'prod'}
+    name: ${param:stack, 'stori'}-artifacts-${opt:stage, 'prod'}
 
 package:
   individually: true
