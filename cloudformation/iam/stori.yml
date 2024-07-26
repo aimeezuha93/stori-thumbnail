@@ -1,0 +1,112 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Contains all the generic roles and managed policies that are required for the project.
+
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Stage:
+    Type: String
+    AllowedValues:
+      - poc
+      - dev
+      - test
+      - stage
+      - prod
+    Default: prod
+    Description: "Suffix to add to the Bucket Prefixes. Can correspond to poc, dev, stage, or prod or be left blank."
+  Version:
+    Type: String
+    Default: "v1"
+    Description: "Version number for the stack"
+  ProjectName:
+    Type: String
+    Default: "data-services"
+    Description: "Project name for tagging resources"
+  StoriBucketNameArtifacts:
+    Type: String
+    Default: "stori-artifacts-prod"
+    Description: "S3 bucket artifacts"
+  StoriBucketNameOutProd:
+    Type: String
+    Default: "stori-data-services-out-prod"
+    Description: "S3 bucket in"
+  StoriBucketNameInProd:
+    Type: String
+    Default: "stori-data-services-in-prod"
+    Description: "S3 bucket out"
+
+Resources:
+  GenericPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: "GenericPolicy"
+      Description: Policy generic access to buckets (raw,trusted,refined and artifacts), access lambda
+      Path: /
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:ListBucket"
+              - "s3:GetObject"
+              - "s3:PutObject"
+              - "s3:PutObjectAcl"
+            Resource: 
+              - !Sub "arn:aws:s3:::${StoriBucketNameArtifacts}"
+              - !Sub "arn:aws:s3:::${StoriBucketNameArtifacts}/*"
+          - Effect: "Allow"
+            Action:
+              - "s3:ListBucket"
+              - "s3:GetObject"
+              - "s3:PutObject"
+              - "s3:PutObjectAcl"
+            Resource:
+              - !Sub "arn:aws:s3:::${StoriBucketNameOutProd}"
+              - !Sub "arn:aws:s3:::${StoriBucketNameOutProd}/*"
+          - Effect: Allow
+            Action:
+              - "s3:ListBucket"
+              - "s3:GetObject"
+              - "s3:PutObject"
+              - "s3:PutObjectAcl"
+            Resource:
+              - !Sub "arn:aws:s3:::${StoriBucketNameInProd}"
+              - !Sub "arn:aws:s3:::${StoriBucketNameInProd}/*"
+          - Effect: "Allow"
+            Action:
+              - "lambda:ListFunctions"
+              - "lambda:InvokeFunction"
+              - "lambda:GetFunction"
+              - "lambda:GetFunctionConfiguration"
+            Resource: "*"
+  
+  GenericRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: stori-data-service-role
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+        - "arn:aws:iam::aws:policy/AmazonS3OutpostsFullAccess"
+        - !Ref GenericPolicy
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Tags:
+        - Key: "version"
+          Value: !Ref Version
+        - Key: "stage"
+          Value: !Ref Stage
+        - Key: "project"
+          Value: !Ref ProjectName

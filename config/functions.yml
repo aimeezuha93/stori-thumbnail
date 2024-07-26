@@ -1,0 +1,21 @@
+stori:
+  prod:
+    functions:      
+      stori-transformation:
+        handler: src/functions/transformation.handler
+        role: 'arn:aws:iam::${aws:accountId}:role/stori-data-service-role'
+        name: 'data-services-${opt:stage, ''dev''}-${self:service}-transformation'
+        maximumRetryAttempts: 0
+        timeout: 240
+        memorySize: 256
+        events:
+          - s3:
+              bucket: amu-data-raw
+              event: s3:ObjectCreated:*
+              rules:
+                - prefix: tutuka/purchases/
+                - suffix: .gz.parquet
+              existing: true
+        layers:
+          - arn:aws:lambda:${aws:region}:${aws:accountId}:layer:data-services-commons-lt:latest
+          - arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python38:1
