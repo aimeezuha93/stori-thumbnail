@@ -1,6 +1,9 @@
 name: stori-infrastructure
 
-on: [workflow_dispatch]
+on:
+  push:
+    branches:
+      - '**'
 
 env:
   REGION: us-east-1
