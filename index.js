@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 AWS.config = new AWS.Config();
-AWS.config.accessKeyId = "accessKey";
-AWS.config.secretAccessKey = "secretKey";
+AWS.config.accessKeyId = process.env.accessKey;
+AWS.config.secretAccessKey = process.env.secretKey;
 AWS.config.region = "us-east-1";
 
 const s3 = new AWS.S3();
@@ -16,9 +16,9 @@ document.getElementById('imageForm').addEventListener('submit', (event) => {
         return;
     }
 
-    const key = `<YOUR_UPLOADS_FOLDER>/${file.name}`;
+    const key = `images/${file.name}`;
     const params = {
-        Bucket: '<YOUR_BUCKET_NAME>',
+        Bucket: 'stori-data-services-in-prod',
         Key: key,
         Body: file
     };
