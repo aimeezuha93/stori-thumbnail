@@ -1,0 +1,16 @@
+{
+    "name": "stori-thumbnail",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/aimeezuha93/stori-thumbnail.git"
+    },
+    "bugs": {
+      "url": "https://github.com/aimeezuha93/stori-thumbnail.git"
+    },
+    "homepage": "https://github.com/aimeezuha93/stori-thumbnail.git#readme",
+    "dependencies": {
+      "serverless-plugin-conditional-functions": "^1.0.0"
+    }
+  }

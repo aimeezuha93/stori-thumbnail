@@ -1,0 +1,31 @@
+service: stori-thumbnail
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-latest-layer-version
+  - serverless-disable-functions
+
+provider:
+  stackName: stori-services-${opt:stage, 'prod'}-${self:service}
+  name: aws
+  runtime: python3.8
+  region: us-east-1
+  versionFunctions: false
+  environment:
+    env: ${opt:stage, 'prod'}
+    stack: ${param:stack, 'stori'}
+  deploymentBucket:
+    name: ${param:stack, 'stori'}-data-services-${opt:stage, 'prod'}
+
+package:
+  individually: true
+  include:
+    - src/**
+  exclude:
+    - .git/**
+    - node_modules/**
+    - venv/**
+    - tools/**
+ 
+functions: ${file(config/functions.yml):${param:stack, 'stori'}.${opt:stage, 'prod'}.functions}
