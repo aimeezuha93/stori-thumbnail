@@ -6,7 +6,7 @@ on:
 env:
   REGION: us-east-1
   CAPABILITIES: CAPABILITY_NAMED_IAM
-  BUCKET_CFG: stori-artefacts
+  BUCKET_CFG: stori-artifacts-prod
 
 jobs:
   stori-s3-prod:
